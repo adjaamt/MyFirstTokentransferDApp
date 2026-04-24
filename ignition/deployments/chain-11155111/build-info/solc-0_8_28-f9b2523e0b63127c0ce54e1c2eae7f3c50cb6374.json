@@ -1,0 +1,55 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-f9b2523e0b63127c0ce54e1c2eae7f3c50cb6374",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "compilerType": "solc",
+  "toolVersions": {
+    "hardhat": "3.4.1"
+  },
+  "userSourceNameMap": {
+    "contracts/MyToken.sol": "project/contracts/MyToken.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode.linkReferences",
+            "evm.bytecode.object",
+            "evm.bytecode.opcodes",
+            "evm.bytecode.sourceMap",
+            "evm.deployedBytecode.immutableReferences",
+            "evm.deployedBytecode.linkReferences",
+            "evm.deployedBytecode.object",
+            "evm.deployedBytecode.opcodes",
+            "evm.deployedBytecode.sourceMap",
+            "evm.methodIdentifiers"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/IMyToken.sol": {
+        "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.28;\r\n\r\ninterface IMyToken {\r\n    event Transfer(address indexed from, address indexed to, uint256 amount);\r\n    function transfer(address to, uint256 amount) external;\r\n    function getBalance(address user) external view returns (uint256);\r\n}"
+      },
+      "project/contracts/MyToken.sol": {
+        "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.28;\r\nimport \"./MyTokenBase.sol\";\r\n\r\ncontract MyToken is MyTokenBase {\r\n    string public name;\r\n    string public symbol;\r\n\r\n    constructor(string memory _name, string memory _symbol, uint256 initialSupply) {\r\n        name = _name;\r\n        symbol = _symbol;\r\n        balances[msg.sender] = initialSupply;\r\n    }\r\n\r\n    function _calculateFee(uint256 amount) internal pure override returns (uint256) {\r\n        // Charge a simple 1% transfer fee.\r\n        return amount / 100;\r\n    }\r\n}"
+      },
+      "project/contracts/MyTokenBase.sol": {
+        "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.28;\r\nimport \"./IMyToken.sol\";\r\n\r\nabstract contract MyTokenBase is IMyToken {\r\n    mapping(address => uint256) public balances;\r\n\r\n    function getBalance(address user) public view override returns (uint256) {\r\n        return balances[user];\r\n    }\r\n\r\n    // Child contracts must decide how the fee is calculated.\r\n    function _calculateFee(uint256 amount) internal virtual pure returns (uint256);\r\n\r\n    function transfer(address to, uint256 amount) public override {\r\n        uint256 fee = _calculateFee(amount);\r\n        require(balances[msg.sender] >= amount + fee, \"Insufficient balance\");\r\n\r\n        balances[msg.sender] -= amount + fee;\r\n        balances[to] += amount;\r\n\r\n        emit Transfer(msg.sender, to, amount);\r\n    }\r\n}"
+      }
+    }
+  }
+}

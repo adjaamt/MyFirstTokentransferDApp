@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 import './App.css';
 import { CONTRACT_ABI, SEPOLIA_CHAIN_ID } from './constants';
@@ -82,7 +82,7 @@ function App() {
   };
 
   // Fetch token balance
-  const fetchBalance = async (userAccount: string) => {
+  const fetchBalance = useCallback(async (userAccount: string) => {
     if (!CONTRACT_ADDRESS) {
       alert('Please set the contract address in localStorage');
       return;
@@ -103,7 +103,7 @@ function App() {
     } catch (error) {
       console.error('Error fetching balance:', error);
     }
-  };
+  }, [CONTRACT_ADDRESS]);
 
   // Handle transfer
   const handleTransfer = async (e: React.FormEvent) => {
@@ -184,7 +184,7 @@ function App() {
     return () => {
       window.ethereum?.removeAllListeners();
     };
-  }, []);
+  }, [fetchBalance]);
 
   // Load contract address from localStorage
   useEffect(() => {
@@ -199,7 +199,7 @@ function App() {
     if (account && CONTRACT_ADDRESS) {
       fetchBalance(account);
     }
-  }, [CONTRACT_ADDRESS]);
+  }, [account, CONTRACT_ADDRESS, fetchBalance]);
 
   return (
     <div className="app">
